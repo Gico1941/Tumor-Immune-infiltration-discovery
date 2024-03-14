@@ -1,6 +1,6 @@
-# Tumor-immune-infiltration
+# ScRNAseq/Tumor-immune-infiltration
 ## Description
-To study how the expression of oncogenes affects tumor-immune cell interplay
+scRNA analysis for studying how the expression of oncogenes affects tumor-immune cell interplay
 
 ## Overview
 
