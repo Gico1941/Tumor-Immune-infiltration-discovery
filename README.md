@@ -23,7 +23,7 @@ R 4.3.1
 ### 3. Run TSNE to check tumor diversity 
 <img src="https://github.com/Gico1941/Tumor-Immune-infiltration-discovery/assets/127346166/b60b3835-5891-4d98-ad20-764e09cfce9b" width="200" />
 
-### 4. Assign tumor cell identities based on FN1 expression and run DEG discovery (default uses mean FN1 expression as threshold)
+### 4. Assign tumor cell identities based on FN1 expression (default uses mean FN1 expression as threshold)
 ```
 half <- quantile(Expression, probs = seq(0, 1, 1/4))[3]
 
@@ -33,7 +33,7 @@ Mal_low <- colnames(Mal)[which(Expression < half )]
 ```
 <img src="https://github.com/Gico1941/Tumor-Immune-infiltration-discovery/assets/127346166/eb430e6a-3cc6-484a-a0b9-58c863c9668b" width="200" />
 
-### 5. Generate rnk file and run pre-ranked GSEA  
+### 5. Run DEG discovery then generate rnk file and run pre-ranked GSEA  
 ```
 DEG <- FindMarkers(Mal,ident.1 = Mal_high,ident.2 = Mal_low,features = rownames(Mal)) ## 1 is positive, 2 is negetive
 DEG2RNK(DEG,name='tumor_cell_DEG')
