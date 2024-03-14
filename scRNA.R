@@ -9,9 +9,8 @@ library(CellChat)
 library(patchwork)
 #options(digits=5)
 
-
+##### Function converting DEG-discovery result to .rnk file for GSEA
 DEG2RNK <- function(DEG,p_hold = 1.1, log2fc_hold = 0,name){
-  
   
   up <- DEG[which(DEG$avg_log2FC > 0 & abs(DEG$avg_log2FC) > log2fc_hold & DEG$p_val_adj < p_hold) ,]
   
@@ -27,6 +26,7 @@ DEG2RNK <- function(DEG,p_hold = 1.1, log2fc_hold = 0,name){
   write_tsv(data.frame(row=rownames(rnk),log2fc=rnk[,'avg_log2FC']) ,paste0(name,'.rnk'),col_names = F)
 }
 
+##### Generate Seurat object from expression matrix and annotation
 initialization <- function(){
   dt <- read.csv('GSE115978_counts.csv',row.names = 1)
   meta <- read.csv('GSE115978_cell.annotations.csv',row.names = 1)
@@ -37,6 +37,7 @@ initialization <- function(){
   return(all)
 }
 
+##### strandard scRNA data processing
 standard_process <- function(object){
   
   object <- NormalizeData(object, normalization.method = "LogNormalize", scale.factor = 10000)
@@ -56,6 +57,7 @@ standard_process <- function(object){
   return(object)
 }
 
+#### DEG discovery
 cellsubset_discover_DEG <- function(object,cell,name,high_sample=high_samples,low_sample=low_samples){
   
   ident.1 = colnames(object)[which(object$samples %in% high_sample & object$cell.types == cell)]
@@ -98,7 +100,7 @@ cellsubset_discover_DEG <- function(object,cell,name,high_sample=high_samples,lo
 {
   ##########################       all cells
   
-  Gene <- 'UBA3'
+  Gene <- 'FN1'
   
   unique(all$Cohort)
   
@@ -127,11 +129,6 @@ cellsubset_discover_DEG <- function(object,cell,name,high_sample=high_samples,lo
   #VlnPlot(Mal,features = c('SERPING1','SLC1A5'),group.by = 'status')
   
 }
-
-
-
-
-
 
 Expression <- as.matrix(Mal[Gene,]@assays$RNA@data)
 
@@ -203,9 +200,9 @@ ggplot(melt(box_plot_dt),aes(x=status,y=value,fill=status))+
   geom_boxplot(outlier.shape = NA)+
   geom_jitter(width = 0.1) 
 
-#### REMOVE OUTLIER SAMPLE
+#### REMOVE OUTLIER SAMPLE if needed
 
-Samples_to_remove <- c('Mel98')
+Samples_to_remove <- c() 
 
 plot_dt_cleaned <- plot_dt[-which(rownames(plot_dt) %in% Samples_to_remove ),]
 
@@ -228,7 +225,7 @@ df_melted <- melt(df)
 ggplot(df_melted, aes(fill=Var2,x=Var1,y=value)) + 
   geom_bar(position='stack', stat='identity')
 
-################# DEG discovery
+################# DEG discovery for every cell population
 
 cellsubset_discover_DEG(all,'T.CD8','CD8T_in_UBA_HIGH_VS_UBA_LOW')
 cellsubset_discover_DEG(all,'Macrophage','Macrophage_in_UBA_HIGH_VS_UBA_LOW')
@@ -274,30 +271,14 @@ run_cellchat <- function(obj,cell_label,cell_info,group_label,group_info){
   #return(obj_list)
 }
 
-cell_chat_visualization <- function(cellchat){
-  groupSize <- as.numeric(table(cellchat@idents))
-  par(mfrow = c(1,2), xpd=TRUE)
-  netVisual_circle(cellchat@net$count, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Number of interactions")
-  netVisual_circle(cellchat@net$weight, vertex.weight = groupSize, weight.scale = T, label.edge= F, title.name = "Interaction weights/strength")
-  
-  mat <- cellchat@net$weight
-  par(mfrow = c(3,4), xpd=TRUE)
-  for (i in 1:nrow(mat)) {
-    mat2 <- matrix(0, nrow = nrow(mat), ncol = ncol(mat), dimnames = dimnames(mat))
-    mat2[i, ] <- mat[i, ]
-    netVisual_circle(mat2, vertex.weight = groupSize, weight.scale = T, edge.weight.max = max(mat), title.name = rownames(mat)[i])
-  }
-}
 
-all.cleaned <- all[,which(all$samples %in% c('Mel98'))]
 
 cell_subset <- c('B.cell','Macrophage','Mal','T.CD4','T.CD8','T.cell')
 cellchat_list <- run_cellchat(all,'cell.types',cell_subset,'samples',list(low=low_samples,high=high_samples))
 cellchat <- mergeCellChat(cellchat_list, add.names = names(cellchat_list))
 
-save(cellchat_list, file = "cellchat_object.UBA3.RData")
-save(cellchat, file = "cellchat_merged_UBA3.RData")
-
+save(cellchat_list, file = "cellchat_object.RData")
+save(cellchat, file = "cellchat_merged.RData")
 
 
 #################################### visualization
@@ -328,7 +309,6 @@ for (i in 1:length(cellchat_list)) {
   netVisual_circle(cellchat_list[[i]]@net$count, weight.scale = T, label.edge= F, edge.weight.max = weight.max[2], edge.width.max = 12, title.name = paste0("Number of interactions - ", names(cellchat_list)[i]))
 }
 
-
 #(D) Circle plot showing the differential number of interactions or interaction strength among coarse cell types
 group.cellType <- c('B.cell', 'Macrophage', 'Mal', rep('T',3))
 group.cellType <- factor(group.cellType, levels = c('B.cell', 'Macrophage', 'Mal', 'T'))
@@ -341,9 +321,6 @@ par(mfrow = c(1,2), xpd=TRUE)
 for (i in 1:length(object.list)) {
   netVisual_circle(object.list[[i]]@net$count.merged, weight.scale = T, label.edge= T, edge.weight.max = weight.max[3], edge.width.max = 12, title.name = paste0("Number of interactions - ", names(object.list)[i]))
 }
-
-
-
 
 #(A) Identify cell populations with significant changes in sending or receiving signals
 
@@ -358,9 +335,6 @@ for (i in 1:length(object.list)) {
 #> Signaling role analysis on the aggregated cell-cell communication network from all signaling pathways
 patchwork::wrap_plots(plots = gg)
 
-
-
-
 #(B) Identify the signaling changes of specific cell populations
 gg1 <- netAnalysis_signalingChanges_scatter(cellchat, idents.use = "T.CD8", signaling.exclude = "MIF")
 #> Visualizing differential outgoing and incoming signaling changes from NL to LS
@@ -371,9 +345,6 @@ gg2 <- netAnalysis_signalingChanges_scatter(cellchat, idents.use = "Mal", signal
 #> The following `from` values were not present in `x`: 0, 2
 #> The following `from` values were not present in `x`: 0, -1
 patchwork::wrap_plots(plots = list(gg1,gg2))
-
-
-
 
 #Identify signaling groups based on their functional similarity
 cellchat <- computeNetSimilarityPairwise(cellchat, type = "functional")
@@ -386,19 +357,10 @@ cellchat <- netClustering(cellchat, type = "functional")
 netVisual_embeddingPairwise(cellchat, type = "functional", label.size = 3.5)
 #> 2D visualization of signaling networks from datasets 1 2
 
-
-
-
-
-
 gg1 <- rankNet(cellchat, mode = "comparison", measure = "weight", sources.use = NULL, targets.use = NULL, stacked = T, do.stat = TRUE)
 gg2 <- rankNet(cellchat, mode = "comparison", measure = "weight", sources.use = NULL, targets.use = NULL, stacked = F, do.stat = TRUE)
 
 gg1 + gg2
-
-
-
-
 
 #   1  Identify dysfunctional signaling by comparing the communication probabities
 pdf('differential_ligand_receptor.pdf',height = 50,width = 8)
