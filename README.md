@@ -9,7 +9,7 @@ To study how the expression of oncogenes affects tumor-immune cell interplay
 
 ## Software dependencies :
 R 4.3.1
-<img src="" width="400" />
+
 
 ## Material :
 ### Sample dataset : GSE115978   Single-cell RNA-seq of melanoma ecosystems reveals sources of T cells exclusion linked to immunotherapy clinical outcomes   https://doi.org/10.1016/j.cell.2018.09.006
