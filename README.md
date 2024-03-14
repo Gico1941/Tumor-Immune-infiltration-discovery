@@ -33,7 +33,7 @@ Mal_low <- colnames(Mal)[which(Expression < half )]
 ```
 <img src="https://github.com/Gico1941/Tumor-Immune-infiltration-discovery/assets/127346166/eb430e6a-3cc6-484a-a0b9-58c863c9668b" width="200" />
 
-### 5. Run DEG discovery then generate rnk file and run pre-ranked GSEA  
+### 5. Run DEG discovery then generate rnk file for pre-ranked GSEA  
 ```
 DEG <- FindMarkers(Mal,ident.1 = Mal_high,ident.2 = Mal_low,features = rownames(Mal)) ## 1 is positive, 2 is negetive
 DEG2RNK(DEG,name='tumor_cell_DEG')
