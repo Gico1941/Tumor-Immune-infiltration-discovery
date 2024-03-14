@@ -13,7 +13,7 @@ R 4.3.1
 
 ## Material :
 ### Sample dataset : GSE115978   Single-cell RNA-seq of melanoma ecosystems reveals sources of T cells exclusion linked to immunotherapy clinical outcomes   https://doi.org/10.1016/j.cell.2018.09.006
-### Use FN1 as a example oncogene
+### Use FN1 as a target gene
 
 ## Steps :
 ### 1. Generate Seurat object with count matrix & cell annotation
