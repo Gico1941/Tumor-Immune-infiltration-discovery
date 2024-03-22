@@ -75,3 +75,7 @@ Create .rnk files ready for pre-ranked GSEA
 
 ### 9. Cell chat analysis
 Official tutorial : https://htmlpreview.github.io/?https://github.com/jinworks/CellChat/blob/master/tutorial/Comparison_analysis_of_multiple_datasets.html
+
+<img src="https://github.com/Gico1941/Tumor-Immune-infiltration-discovery/assets/127346166/8453cfff-4ffe-4ad7-bef1-101bcc7a387f" width="400" />
+
+
